@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/sbeverly/auth/config"
 	"github.com/sbeverly/auth/db"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -11,13 +10,15 @@ const (
 	PWDCOST = 10
 )
 
-func createUser(email string, pwd string) {
+func createUser(name string, email string, pwd string) {
 	hPwd, _ := bcrypt.GenerateFromPassword([]byte(pwd), PWDCOST)
-	log.Println(hPwd)
+	err := db.CreateUser(name, email, string(hPwd))
+
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func main() {
-	conf := config.GetConfig()
-	db.Connect(conf)
-	createUser("siyan.beverly", "12345")
+	createUser("Siyan Beverly", "siyan.beverly@gmail.com", "12345")
 }
