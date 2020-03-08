@@ -3,14 +3,14 @@ package db
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgconn"
+	//"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/sbeverly/auth/config"
+	"log"
 )
 
 var dbConf config.DatabaseConfig
 
-// NOTE: May move to /models
 type UserAccount struct {
 	ID       string
 	Name     string
@@ -22,7 +22,11 @@ func init() {
 	dbConf = config.GetConfig().DB
 }
 
-func Connect() *pgx.Conn {
+type Conn struct {
+	*pgx.Conn
+}
+
+func Start() *Conn {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/authentication",
 		dbConf.User,
 		dbConf.Password,
@@ -30,23 +34,20 @@ func Connect() *pgx.Conn {
 	conn, err := pgx.Connect(context.Background(), connStr)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	return conn
+	return &Conn{conn}
 }
 
-func Exec(sql string, arguments ...interface{}) (pgconn.CommandTag, error) {
-	conn := Connect()
-	defer conn.Close(context.Background())
-
-	return conn.Exec(context.Background(), sql, arguments...)
+func (c Conn) End() {
+	c.Close(context.Background())
 }
 
-func CreateUser(name string, email string, password string) error {
+func (c Conn) CreateUser(name string, email string, password string) error {
 	sql := `INSERT INTO user_account (name, email, password) 
 		VALUES($1, $2, $3)`
 
-	_, err := Exec(sql, name, email, password)
+	_, err := c.Exec(context.Background(), sql, name, email, password)
 
 	if err != nil {
 		return err

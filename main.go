@@ -12,8 +12,9 @@ const (
 
 func createUser(name string, email string, pwd string) {
 	hPwd, _ := bcrypt.GenerateFromPassword([]byte(pwd), PWDCOST)
-	err := db.CreateUser(name, email, string(hPwd))
-
+	conn := db.Start()
+	err := conn.CreateUser(name, email, string(hPwd))
+	conn.End()
 	if err != nil {
 		log.Println(err)
 	}
