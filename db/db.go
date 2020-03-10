@@ -3,7 +3,6 @@ package db
 import (
 	"context"
 	"fmt"
-	//"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"github.com/sbeverly/auth/config"
 	"log"
@@ -11,11 +10,9 @@ import (
 
 var dbConf config.DatabaseConfig
 
-type UserAccount struct {
-	ID       string
-	Name     string
-	Email    string
-	Password string
+type User struct {
+	Name  string
+	Email string
 }
 
 func init() {
@@ -41,6 +38,24 @@ func Start() *Conn {
 
 func (c Conn) End() {
 	c.Close(context.Background())
+}
+
+func (c Conn) GetUser(email string) (*User, string, error) {
+	var name string
+	var pwdHash string
+
+	sql := `SELECT name, password
+		FROM user_account
+		WHERE email = $1`
+	err := c.QueryRow(context.Background(), sql, email).Scan(&name, &pwdHash)
+
+	if err != nil {
+		return nil, "", err
+	}
+
+	return &User{
+		name,
+		email}, pwdHash, nil
 }
 
 func (c Conn) CreateUser(name string, email string, password string) error {
