@@ -23,8 +23,12 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-type ValidateRequest struct {
+type VerifyRequest struct {
 	Token string `json:"token"`
+}
+
+type VerifyResponse struct {
+	Error string `json:",omitempty"`
 }
 
 func createUser(name string, email string, pwd string) {
@@ -37,15 +41,20 @@ func createUser(name string, email string, pwd string) {
 	}
 }
 
-func validate(c echo.Context) error {
-	req := new(ValidateRequest)
+func verify(c echo.Context) error {
+	req := new(VerifyRequest)
 	if err := c.Bind(req); err != nil {
-		return c.JSON(http.StatusBadRequest, "Could not extract token string from request.")
+		return c.JSON(http.StatusBadRequest, "Could not extract token from request.")
 	}
 
-	tkn := jwt.IsValid(req.Token)
+	err := jwt.Verify(req.Token)
 
-	return c.JSON(http.StatusOK, tkn)
+	if err != nil {
+		log.Println(err)
+		return c.JSON(http.StatusUnauthorized, &VerifyResponse{Error: "Unauthorized"})
+	}
+
+	return c.JSON(http.StatusOK, &VerifyResponse{})
 }
 
 func login(c echo.Context) error {
@@ -70,7 +79,7 @@ func login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, "Invalid credentials.")
 	}
 
-	token, err := jwt.Generate([]byte(`{}`))
+	token, err := jwt.Generate([]byte(`{"iss": "auth-server"}`))
 
 	if err != nil {
 		log.Println(err)
@@ -84,6 +93,6 @@ func login(c echo.Context) error {
 func main() {
 	e := echo.New()
 	e.POST("/login", login)
-	e.POST("/validate", validate)
+	e.POST("/verify", verify)
 	e.Logger.Fatal(e.Start(":1323"))
 }
