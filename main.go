@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"os"
 )
 
 const (
@@ -94,5 +95,5 @@ func main() {
 	e := echo.New()
 	e.POST("/login", login)
 	e.POST("/verify", verify)
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }

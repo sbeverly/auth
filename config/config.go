@@ -3,14 +3,16 @@ package config
 import (
 	secretmanager "cloud.google.com/go/secretmanager/apiv1beta1"
 	"context"
-	"encoding/json"
 	"fmt"
 	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1beta1"
-	"io/ioutil"
 	"log"
 )
 
-const DB_PASSWORD_URI = "projects/628113837053/secrets/DB_PASSWORD/versions/1"
+const (
+	DB_USER_URI     = "projects/628113837053/secrets/DB_USER/versions/1"
+	DB_PASSWORD_URI = "projects/628113837053/secrets/DB_PASSWORD/versions/1"
+	DB_HOST_URI     = "projects/628113837053/secrets/DB_HOST/versions/2"
+)
 
 type DatabaseConfig struct {
 	Host     string
@@ -22,16 +24,10 @@ type Config struct {
 	DB DatabaseConfig `json:"database"`
 }
 
-func GetConfig() Config {
-	file, err := ioutil.ReadFile("secrets.json")
-	if err != nil {
-		log.Fatal(err)
-	}
+func GetConfig() *Config {
+	config := &Config{}
 
-	var config Config
-	json.Unmarshal(file, &config)
-
-	err = config.populateSecrets()
+	err := config.populateSecrets()
 
 	if err != nil {
 		log.Fatal(err)
@@ -40,13 +36,17 @@ func GetConfig() Config {
 }
 
 func (c *Config) populateSecrets() error {
+	dbUser, err := accessSecretVersion(DB_USER_URI)
 	dbPass, err := accessSecretVersion(DB_PASSWORD_URI)
+	dbHost, err := accessSecretVersion(DB_HOST_URI)
 
 	if err != nil {
 		return err
 	}
 
+	c.DB.User = string(dbUser)
 	c.DB.Password = string(dbPass)
+	c.DB.Host = string(dbHost)
 	return nil
 }
 

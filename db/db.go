@@ -24,11 +24,18 @@ type Conn struct {
 }
 
 func Start() *Conn {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:5432/authentication",
+	//	connStr := fmt.Sprintf("%s:%s@/cloudsql/%s/authentication",
+	//		dbConf.User,
+	//		dbConf.Password,
+	//		dbConf.Host)
+	connStr := fmt.Sprintf("user=%s password=%s host=/cloudsql/%s database=authentication",
 		dbConf.User,
 		dbConf.Password,
 		dbConf.Host)
+
 	conn, err := pgx.Connect(context.Background(), connStr)
+
+	//conn, err := pgx.Connect(context.Background(), connStr)
 
 	if err != nil {
 		log.Fatal(err)
