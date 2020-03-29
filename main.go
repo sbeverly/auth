@@ -32,6 +32,10 @@ type VerifyResponse struct {
 	Error string `json:",omitempty"`
 }
 
+type PingResponse struct {
+	Status string `json:"status, omitempty"`
+}
+
 func createUser(name string, email string, pwd string) {
 	hPwd, _ := bcrypt.GenerateFromPassword([]byte(pwd), PWDCOST)
 	conn := db.Start()
@@ -91,9 +95,14 @@ func login(c echo.Context) error {
 		Email: user.Email})
 }
 
+func ping(c echo.Context) error {
+	return c.JSON(http.StatusOK, &PingResponse{"OK"})
+}
+
 func main() {
 	e := echo.New()
-	e.POST("/login", login)
-	e.POST("/verify", verify)
+	e.GET("/api/ping", ping)
+	e.POST("/api/login", login)
+	e.POST("/api/verify", verify)
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
