@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	STATUS_OK = "OK!!"
+	STATUS_OK = "OK!!!"
 )
 
 func Ping(c echo.Context) error {
