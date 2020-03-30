@@ -1,0 +1,28 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  setup-build-deploy:
+    name: Setup, Build, and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      # Setup gcloud CLI
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          version: '275.0.0'
+          service_account_email: ${{ secrets.SA_EMAIL }}
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+      - name: gcloud Set up
+        run: |
+          gcloud config set project ${{ secrets.PROJECT_ID }}
+      - name: Build and Deploy
+        run: |
+          gcloud builds submit 
