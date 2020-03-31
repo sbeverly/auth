@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS user_account;
+-- DROP TABLE IF EXISTS user_account;
 
 CREATE TABLE user_account (
 	name VARCHAR(100) NOT NULL,

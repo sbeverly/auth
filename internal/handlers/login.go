@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/sbeverly/auth/db"
-	"github.com/sbeverly/auth/jwt"
+	"github.com/sbeverly/auth/internal/db"
+	"github.com/sbeverly/auth/internal/jwt"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4"
-	"github.com/sbeverly/auth/config"
+	"github.com/sbeverly/auth/internal/config"
 	"log"
 )
 

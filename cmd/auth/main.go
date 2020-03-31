@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/sbeverly/auth/handlers"
+	"github.com/sbeverly/auth/internal/handlers"
 	"os"
 )
 

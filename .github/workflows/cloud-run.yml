@@ -25,4 +25,4 @@ jobs:
           gcloud config set project ${{ secrets.PROJECT_ID }}
       - name: Build and Deploy
         run: |
-          gcloud builds submit 
+          gcloud builds submit --config=deployments/cloudbuild.yaml 
