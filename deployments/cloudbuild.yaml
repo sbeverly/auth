@@ -1,6 +1,6 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/siyan-io/auth', '.']
+  args: ['build', '-t', 'gcr.io/siyan-io/auth', '-f', 'build/Dockerfile', '.']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/siyan-io/auth']
 - name: 'gcr.io/cloud-builders/gcloud'

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/sbeverly/auth/jwt"
+	"github.com/sbeverly/auth/internal/jwt"
 	"net/http"
 )
 
