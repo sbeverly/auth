@@ -7,12 +7,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"time"
 )
 
 const (
 	INVALID_CREDS_MSG      = "Wrong Username/Password"
 	BAD_REQ_EMAIL_PASSWORD = "Could not extract email/password from request"
 )
+
+func makeCookie(token string) *http.Cookie {
+	cookie := new(http.Cookie)
+	cookie.Name = "auth"
+	cookie.Value = token
+	cookie.Secure = true
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	return cookie
+}
 
 func Login(c echo.Context) error {
 	req := new(LoginRequest)
@@ -22,7 +32,7 @@ func Login(c echo.Context) error {
 	}
 
 	conn := db.Start()
-	user, pwdHash, err := conn.GetUser(req.Email)
+	_, pwdHash, err := conn.GetUser(req.Email)
 	conn.End()
 
 	if err != nil {
@@ -42,7 +52,7 @@ func Login(c echo.Context) error {
 		log.Println(err)
 	}
 
-	return c.JSON(http.StatusOK, &LoginResponse{
-		Token: token,
-		Email: user.Email})
+	cookie := makeCookie(token)
+	c.SetCookie(cookie)
+	return c.JSON(http.StatusOK, &SuccessResponse{})
 }
