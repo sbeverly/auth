@@ -24,5 +24,4 @@ type ErrorResponse struct {
 
 type PingResponse struct {
 	Status string `json:"status, omitempty"`
-	Uptime string `json:"uptime, omitempty"`
 }
