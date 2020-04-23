@@ -21,7 +21,8 @@ func makeCookie(token string) *http.Cookie {
 	cookie.Value = token
 	cookie.Domain = "siyan.io"
 	cookie.Path = "/"
-	// cookie.Secure = true
+	cookie.HttpOnly = true
+	cookie.Secure = true
 	cookie.Expires = time.Now().Add(24 * time.Hour)
 	return cookie
 }
