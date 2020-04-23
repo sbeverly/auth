@@ -31,7 +31,10 @@ func main() {
 
 	e := echo.New()
 
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{}))
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://local.siyan.io:3000", "https://login.siyan.io"},
+		AllowCredentials: true,
+	}))
 
 	e.GET("/api/ping", handlers.Ping)
 	e.POST("/api/login", handlers.Login)
