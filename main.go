@@ -55,7 +55,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	e.GET("/ping", handlers.Ping, validateToken)
+	e.GET("/ping", handlers.Ping)
 	e.POST("/login", handlers.Login)
 	
 	api := e.Group("/api", validateToken)

@@ -43,7 +43,6 @@ func (c Conn) End() {
 	c.Close(context.Background())
 }
 
-
 func (c Conn) GetUserByEmail(email string) (*User, error) {
 	var name string
 	var isAdmin bool
