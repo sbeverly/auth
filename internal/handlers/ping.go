@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
 const (
-	STATUS_OK = "OK!"
+	STATUS_OK = "OK"
 )
 
 func Ping(c echo.Context) error {

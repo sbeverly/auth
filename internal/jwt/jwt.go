@@ -1,27 +1,35 @@
 package jwt
 
 import (
-	cloudkms "cloud.google.com/go/kms/apiv1"
 	"context"
 	"crypto/ecdsa"
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/asn1"
 	b64 "encoding/base64"
+	"encoding/json"
 	"encoding/pem"
 	"errors"
 	"fmt"
-	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
 	"math/big"
 	"strings"
+
+	cloudkms "cloud.google.com/go/kms/apiv1"
+	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
 
 var header = []byte(`{"alg": "HS256", "typ": "JWT"}`)
 var keyName = "projects/siyan-io/locations/global/keyRings/siyan-io/cryptoKeys/jwt/cryptoKeyVersions/1"
 
-func Generate(payload []byte) (string, error) {
+type Payload struct {
+	Email string `json:"email"`
+}
+
+func Generate(payload *Payload) (string, error) {
+	jsonPayload, _ := json.Marshal(payload)
+
 	headerB64 := b64Encode(header)
-	payloadB64 := b64Encode(payload)
+	payloadB64 := b64Encode(jsonPayload)
 
 	message := headerB64 + "." + payloadB64
 	signature, err := signAsymmetric([]byte(message))
@@ -31,6 +39,7 @@ func Generate(payload []byte) (string, error) {
 	return token, err
 }
 
+// Verify : Verify token signature
 func Verify(token string) error {
 	header, payload, signature, err := parseToken(token)
 
@@ -41,6 +50,21 @@ func Verify(token string) error {
 	message := []byte(string(header) + "." + string(payload))
 
 	return verifySignatureEC(signature, message)
+}
+
+// Claims : Extract Claims from token
+func Claims(token string) (*Payload, error) {
+	_, payloadb64, _, err := parseToken(token)
+
+	if err != nil {
+		return nil, err
+	}
+
+	payloadJSON := b64Decode(string(payloadb64))
+	var payload Payload
+	json.Unmarshal(payloadJSON, &payload)
+
+	return &payload, nil
 }
 
 func parseToken(token string) ([]byte, []byte, []byte, error) {
