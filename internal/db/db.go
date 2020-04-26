@@ -26,7 +26,7 @@ type Conn struct {
 }
 
 func Start() *Conn {
-	connStr := fmt.Sprintf("%s:%s@/cloudsql/%s/authentication",
+	connStr := fmt.Sprintf("user=%s password=%s host=/cloudsql/%s database=authentication",
 		dbConf.User,
 		dbConf.Password,
 		dbConf.Host)
