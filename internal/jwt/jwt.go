@@ -22,7 +22,7 @@ var header = []byte(`{"alg": "HS256", "typ": "JWT"}`)
 var keyName = "projects/siyan-io/locations/global/keyRings/siyan-io/cryptoKeys/jwt/cryptoKeyVersions/1"
 
 type Payload struct {
-	Email string `json:"email"`
+	UserID int `json:"userId"`
 }
 
 func Generate(payload *Payload) (string, error) {
@@ -61,6 +61,7 @@ func Claims(token string) (*Payload, error) {
 	}
 
 	payloadJSON := b64Decode(string(payloadb64))
+
 	var payload Payload
 	json.Unmarshal(payloadJSON, &payload)
 

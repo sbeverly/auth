@@ -50,7 +50,7 @@ type AuthenticatedContext struct {
 }
 
 func (c *AuthenticatedContext) GetUser() (*db.User, error) {
-	cookie, err := c.Cookie("auth")
+	cookie, err := c.Cookie("token")
 
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (c *AuthenticatedContext) GetUser() (*db.User, error) {
 	payload, _ := jwt.Claims(cookie.Value)
 
 	conn := db.Start()
-	user, err := conn.GetUserByEmail(payload.Email)
+	user, err := conn.GetUserByID(payload.UserID)
 	conn.End()
 
 	if err != nil {

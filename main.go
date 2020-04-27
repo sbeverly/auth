@@ -6,12 +6,12 @@ import (
 	"github.com/sbeverly/auth/internal/handlers"
 	"github.com/sbeverly/auth/internal/jwt"
 	"net/http"
-	"os"
+	// "os"
 )
 
 func validateToken(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		cookie, err := c.Cookie("auth")
+		cookie, err := c.Cookie("token")
 
 		if err != nil {
 			return c.NoContent(http.StatusUnauthorized)
@@ -65,10 +65,11 @@ func main() {
 	admin := e.Group("/admin", validateToken, adminOnly)
 	admin.POST("/create", handlers.CreateUser)
 
-	port := "1323"
-	if val := os.Getenv("PORT"); val != "" {
-		port = val
-	}
+	// port := "1323"
+	// if val := os.Getenv("PORT"); val != "" {
+	// 	port = val
+	// }
 
-	e.Logger.Fatal(e.Start(":" + port))
+	// e.Logger.Fatal(e.Start(":" + port))
+	e.Logger.Fatal(e.StartTLS(":1323", "/Users/siyanbeverly/Desktop/localhost.crt", "/Users/siyanbeverly/Desktop/localhost.key"))
 }

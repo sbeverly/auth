@@ -14,7 +14,7 @@ const (
 	dbPasswordURI = "projects/628113837053/secrets/DB_PASSWORD/versions/1"
 	dbHostURI     = "projects/628113837053/secrets/DB_HOST/versions/2"
 
-	cookieDomain = ".siyan.io"
+	cookieDomain = ".siyan.local"
 )
 
 // DatabaseConfig : Config for database settings

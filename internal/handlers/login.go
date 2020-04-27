@@ -44,7 +44,7 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, &ErrorResponse{invalidCredsMSG})
 	}
 
-	token, err := jwt.Generate(&jwt.Payload{Email: user.Email})
+	token, err := jwt.Generate(&jwt.Payload{UserID: user.ID})
 
 	if err != nil {
 		c.NoContent(http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func Login(c echo.Context) error {
 
 func makeCookie(token string) *http.Cookie {
 	cookie := new(http.Cookie)
-	cookie.Name = "auth"
+	cookie.Name = "token"
 	cookie.Value = token
 	cookie.Domain = cookieConf.Domain
 	cookie.Path = "/"
