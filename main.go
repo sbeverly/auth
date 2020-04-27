@@ -65,11 +65,10 @@ func main() {
 	admin := e.Group("/admin", validateToken, adminOnly)
 	admin.POST("/create", handlers.CreateUser)
 
-	// port := "1323"
-	// if val := os.Getenv("PORT"); val != "" {
-	// 	port = val
-	// }
+	port := "1323"
+	if val := os.Getenv("PORT"); val != "" {
+		port = val
+	}
 
-	// e.Logger.Fatal(e.Start(":" + port))
-	e.Logger.Fatal(e.StartTLS(":1323", "/Users/siyanbeverly/Desktop/localhost.crt", "/Users/siyanbeverly/Desktop/localhost.key"))
+	e.Logger.Fatal(e.Start(":" + port))
 }
