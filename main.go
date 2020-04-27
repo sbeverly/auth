@@ -6,7 +6,7 @@ import (
 	"github.com/sbeverly/auth/internal/handlers"
 	"github.com/sbeverly/auth/internal/jwt"
 	"net/http"
-	// "os"
+	"os"
 )
 
 func validateToken(next echo.HandlerFunc) echo.HandlerFunc {
