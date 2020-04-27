@@ -51,7 +51,7 @@ func main() {
 	e.Pre(middleware.HTTPSRedirect())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"https://login.siyan.local", "https://login.siyan.io"},
+		AllowOrigins: []string{"https://login-local.siyan.io", "https://login.siyan.io"},
 		AllowCredentials: true,
 	}))
 
