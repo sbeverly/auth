@@ -61,6 +61,7 @@ func main() {
 	api := e.Group("/api", validateToken)
 	api.GET("/verify", handlers.Verify, validateToken)
 	api.GET("/me", handlers.Me, validateToken)
+	api.GET("/logout", handlers.Logout, validateToken)
 	
 	admin := e.Group("/admin", validateToken, adminOnly)
 	admin.POST("/create", handlers.CreateUser)

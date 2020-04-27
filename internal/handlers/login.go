@@ -4,10 +4,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/sbeverly/auth/internal/db"
 	"github.com/sbeverly/auth/internal/jwt"
+	"github.com/sbeverly/auth/internal/cookies"
 	"golang.org/x/crypto/bcrypt"
-	"github.com/sbeverly/auth/internal/config"
 	"net/http"
-	"time"
 )
 
 const (
@@ -15,25 +14,14 @@ const (
 	noEmailPasswordMSG 	 = "Could not extract email/password from request"
 )
 
-var cookieConf config.CookieConfig
-
-func init() {
-	cookieConf = config.GetConfig().Cookie
-}
-
-type LoginRequest struct {
+type loginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type LoginResponse struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
-}
-
-// Login : Handle login request
+// Login : /login
 func Login(c echo.Context) error {
-	req := new(LoginRequest)
+	req := new(loginRequest)
 
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, &ErrorResponse{noEmailPasswordMSG})
@@ -60,21 +48,8 @@ func Login(c echo.Context) error {
 		c.NoContent(http.StatusInternalServerError)
 	}
 
-	cookie := makeCookie(token)
-	c.SetCookie(cookie)
+	ck := cookies.GenerateLoginCookie(token)
+	c.SetCookie(ck)
 	return c.NoContent(http.StatusOK)
 }
 
-// UTILS
-
-func makeCookie(token string) *http.Cookie {
-	cookie := new(http.Cookie)
-	cookie.Name = "token"
-	cookie.Value = token
-	cookie.Domain = cookieConf.Domain
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = true
-	cookie.Expires = time.Now().Add(24 * time.Hour)
-	return cookie
-}
