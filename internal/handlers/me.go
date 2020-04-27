@@ -6,6 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type MeResponse struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
 // Me : /me request handler
 func Me(c echo.Context) error {
 	ac := c.(*AuthenticatedContext)

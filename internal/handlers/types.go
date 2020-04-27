@@ -6,43 +6,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type LoginResponse struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
-}
-
-type VerifyRequest struct {
-	Token string `json:"token"`
-}
-
-type MeRequest struct{}
-
-type MeResponse struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-}
-
 type SuccessResponse struct {
 	Message string `json:"message,omitempty"`
 }
 
 type ErrorResponse struct {
 	Error string `json:"error,omitempty"`
-}
-
-type PingResponse struct {
-	Status string `json:"status, omitempty"`
-}
-
-type CreateUserRequest struct {
-	Name string `json:"name"`
-	Email string `json:"email"`
-	Password  string `json:"password"`
 }
 
 type AuthenticatedContext struct {
