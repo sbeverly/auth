@@ -58,13 +58,13 @@ func main() {
 	e.GET("/ping", handlers.Ping)
 	e.POST("/login", handlers.Login)
 	
-	api := e.Group("/api", validateToken)
-	api.GET("/verify", handlers.Verify, validateToken)
-	api.GET("/me", handlers.Me, validateToken)
-	api.GET("/logout", handlers.Logout, validateToken)
+	user := e.Group("/user", validateToken)
+	user.GET("/verify", handlers.Verify)
+	user.GET("/me", handlers.Me)
+	user.POST("/logout", handlers.Logout)
 	
 	admin := e.Group("/admin", validateToken, adminOnly)
-	admin.POST("/create", handlers.CreateUser)
+	admin.POST("/user/create", handlers.CreateUser)
 
 	port := "1323"
 	if val := os.Getenv("PORT"); val != "" {
