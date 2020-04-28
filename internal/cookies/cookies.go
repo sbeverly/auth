@@ -2,7 +2,6 @@ package cookies
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/sbeverly/auth/internal/config"
 )
@@ -21,7 +20,7 @@ func GenerateLoginCookie(token string) *http.Cookie {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
-		Expires:  time.Now().Add(24 * time.Hour)}
+		MaxAge:   24 * 60 * 60}
 }
 
 func GenerateLogoutCookie() *http.Cookie {
@@ -32,5 +31,5 @@ func GenerateLogoutCookie() *http.Cookie {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
-		Expires:  time.Now().Add(-1 * time.Hour)}
+		MaxAge:   0}
 }
