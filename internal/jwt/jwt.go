@@ -12,12 +12,19 @@ import (
 	"errors"
 	"fmt"
 	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
+	"log"
 	"math/big"
 	"strings"
 )
 
 var header = []byte(`{"alg": "HS256", "typ": "JWT"}`)
 var keyName = "projects/siyan-io/locations/global/keyRings/siyan-io/cryptoKeys/jwt/cryptoKeyVersions/1"
+
+var secretKey *ecdsa.PublicKey
+
+func init() {
+	secretKey = getSecretKey(keyName)
+}
 
 func Generate(payload []byte) (string, error) {
 	headerB64 := b64Encode(header)
@@ -96,39 +103,44 @@ func signAsymmetric(message []byte) ([]byte, error) {
 }
 
 func verifySignatureEC(signature []byte, message []byte) error {
-	ctx := context.Background()
-	client, err := cloudkms.NewKeyManagementClient(ctx)
-	if err != nil {
-		return fmt.Errorf("cloudkms.NewKeyManagementClient: %v", err)
-	}
-
-	response, err := client.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: keyName})
-	if err != nil {
-		return fmt.Errorf("GetPublicKey: %v", err)
-	}
-
-	block, _ := pem.Decode([]byte(response.Pem))
-	abstractKey, err := x509.ParsePKIXPublicKey(block.Bytes)
-	if err != nil {
-		return fmt.Errorf("x509.ParsePKIXPublicKey: %v", err)
-	}
-
-	ecKey, ok := abstractKey.(*ecdsa.PublicKey)
-	if !ok {
-		return fmt.Errorf("key '%s' is not EC", keyName)
-	}
-
 	var parsedSig struct{ R, S *big.Int }
-	if _, err = asn1.Unmarshal(signature, &parsedSig); err != nil {
+	if _, err := asn1.Unmarshal(signature, &parsedSig); err != nil {
 		return fmt.Errorf("asn1.Unmarshal: %v", err)
 	}
 
 	hash := sha256.New()
 	hash.Write(message)
 	digest := hash.Sum(nil)
-	if !ecdsa.Verify(ecKey, digest, parsedSig.R, parsedSig.S) {
+	if !ecdsa.Verify(secretKey, digest, parsedSig.R, parsedSig.S) {
 		return fmt.Errorf("ecdsa.Verify failed on key: %s", keyName)
 	}
 
 	return nil
+}
+
+func getSecretKey(string) *ecdsa.PublicKey {
+	ctx := context.Background()
+	client, err := cloudkms.NewKeyManagementClient(ctx)
+	if err != nil {
+		log.Fatal("cloudkms.NewKeyManagementClient: %v", err)
+	}
+
+	response, err := client.GetPublicKey(ctx, &kmspb.GetPublicKeyRequest{Name: keyName})
+	if err != nil {
+		log.Fatal("GetPublicKey: %v", err)
+	}
+
+	block, _ := pem.Decode([]byte(response.Pem))
+	abstractKey, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		log.Fatal("x509.ParsePKIXPublicKey: %v", err)
+	}
+
+	ecKey, ok := abstractKey.(*ecdsa.PublicKey)
+	if !ok {
+		log.Fatal("key '%s' is not EC", keyName)
+	}
+
+	return ecKey
+
 }
