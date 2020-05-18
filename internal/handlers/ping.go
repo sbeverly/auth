@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/labstack/echo/v4"
 	"net/http"
+
+	"github.com/labstack/echo/v4"
 )
 
-const (
-	STATUS_OK = "OK!"
-)
+type PingResponse struct {
+	Status string `json:"status, omitempty"`
+}
 
 func Ping(c echo.Context) error {
-	return c.JSON(http.StatusOK, &PingResponse{STATUS_OK})
+	return c.JSON(http.StatusOK, &PingResponse{"OK"})
 }

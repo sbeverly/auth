@@ -1,44 +1,55 @@
 package config
 
 import (
-	secretmanager "cloud.google.com/go/secretmanager/apiv1beta1"
 	"context"
 	"fmt"
-	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1beta1"
 	"log"
+
+	secretmanager "cloud.google.com/go/secretmanager/apiv1beta1"
+	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1beta1"
 )
 
 const (
-	DB_USER_URI     = "projects/628113837053/secrets/DB_USER/versions/1"
-	DB_PASSWORD_URI = "projects/628113837053/secrets/DB_PASSWORD/versions/1"
-	DB_HOST_URI     = "projects/628113837053/secrets/DB_HOST/versions/2"
+	dbUserURI     = "projects/628113837053/secrets/DB_USER/versions/1"
+	dbPasswordURI = "projects/628113837053/secrets/DB_PASSWORD/versions/1"
+	dbHostURI     = "projects/628113837053/secrets/DB_HOST/versions/2"
+
+	cookieDomain = ".siyan.io"
 )
 
+// DatabaseConfig : Config for database settings
 type DatabaseConfig struct {
 	Host     string
 	User     string
 	Password string
 }
 
-type Config struct {
-	DB DatabaseConfig `json:"database"`
+// CookieConfig : Config for cookie settings
+type CookieConfig struct {
+	Domain string
 }
 
+// Config : Wrapper config that holds all settings for application
+type Config struct {
+	DB     DatabaseConfig `json:"database"`
+	Cookie CookieConfig   `json:"cookie"`
+}
+
+// GetConfig : Builds config struct based depending production/development environment.
 func GetConfig() *Config {
 	config := &Config{}
 
-	err := config.populateSecrets()
-
-	if err != nil {
+	if err := config.populateConfig(); err != nil {
 		log.Fatal(err)
 	}
+
 	return config
 }
 
-func (c *Config) populateSecrets() error {
-	dbUser, err := accessSecretVersion(DB_USER_URI)
-	dbPass, err := accessSecretVersion(DB_PASSWORD_URI)
-	dbHost, err := accessSecretVersion(DB_HOST_URI)
+func (c *Config) populateConfig() error {
+	dbUser, err := accessSecretVersion(dbUserURI)
+	dbPass, err := accessSecretVersion(dbPasswordURI)
+	dbHost, err := accessSecretVersion(dbHostURI)
 
 	if err != nil {
 		return err
@@ -47,11 +58,14 @@ func (c *Config) populateSecrets() error {
 	c.DB.User = string(dbUser)
 	c.DB.Password = string(dbPass)
 	c.DB.Host = string(dbHost)
+
+	c.Cookie.Domain = cookieDomain
 	return nil
 }
 
+// UTILS
+
 func accessSecretVersion(name string) ([]byte, error) {
-	// Create the client.
 	ctx := context.Background()
 	client, err := secretmanager.NewClient(ctx)
 	if err != nil {

@@ -4,58 +4,52 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/sbeverly/auth/internal/db"
 	"github.com/sbeverly/auth/internal/jwt"
+	"github.com/sbeverly/auth/internal/cookies"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"net/http"
-	"time"
 )
 
 const (
-	INVALID_CREDS_MSG      = "Wrong Username/Password"
-	BAD_REQ_EMAIL_PASSWORD = "Could not extract email/password from request"
+	invalidCredsMSG      = "Wrong Username/Password"
+	noEmailPasswordMSG 	 = "Could not extract email/password from request"
 )
 
-func makeCookie(token string) *http.Cookie {
-	cookie := new(http.Cookie)
-	cookie.Name = "auth"
-	cookie.Value = token
-	cookie.Domain = "siyan.io"
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = true
-	cookie.Expires = time.Now().Add(24 * time.Hour)
-	return cookie
+type loginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
+// Login : /login
 func Login(c echo.Context) error {
-	req := new(LoginRequest)
+	req := new(loginRequest)
 
 	if err := c.Bind(req); err != nil {
-		return c.JSON(http.StatusBadRequest, &ErrorResponse{BAD_REQ_EMAIL_PASSWORD})
+		return c.JSON(http.StatusBadRequest, &ErrorResponse{noEmailPasswordMSG})
 	}
 
 	conn := db.Start()
-	_, pwdHash, err := conn.GetUser(req.Email)
+	user, encryptedPassword, err := conn.GetUserWithPassword(req.Email)
 	conn.End()
 
 	if err != nil {
 		// user not found
-		return c.JSON(http.StatusUnauthorized, &ErrorResponse{INVALID_CREDS_MSG})
+		return c.JSON(http.StatusUnauthorized, &ErrorResponse{invalidCredsMSG})
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(req.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(encryptedPassword), []byte(req.Password))
 
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, &ErrorResponse{INVALID_CREDS_MSG})
+		return c.JSON(http.StatusUnauthorized, &ErrorResponse{invalidCredsMSG})
 	}
 
-	token, err := jwt.Generate([]byte(`{"iss": "auth-server"}`))
+	token, err := jwt.Generate(&jwt.Payload{UserID: user.ID})
 
 	if err != nil {
-		log.Println(err)
+		c.NoContent(http.StatusInternalServerError)
 	}
 
-	cookie := makeCookie(token)
-	c.SetCookie(cookie)
-	return c.JSON(http.StatusOK, &SuccessResponse{})
+	ck := cookies.GenerateLoginCookie(token)
+	c.SetCookie(ck)
+	return c.NoContent(http.StatusOK)
 }
+
