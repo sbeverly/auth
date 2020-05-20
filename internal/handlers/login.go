@@ -6,6 +6,7 @@ import (
 	"github.com/sbeverly/auth/internal/jwt"
 	"github.com/sbeverly/auth/internal/cookies"
 	"golang.org/x/crypto/bcrypt"
+	"time"
 	"net/http"
 )
 
@@ -42,7 +43,9 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, &ErrorResponse{invalidCredsMSG})
 	}
 
-	token, err := jwt.Generate(&jwt.Claims{UserID: user.ID})
+	token, err := jwt.Generate(&jwt.Claims{
+		UserID: user.ID,
+		Iat: time.Now().UTC()})
 
 	if err != nil {
 		c.NoContent(http.StatusInternalServerError)

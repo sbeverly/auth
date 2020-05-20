@@ -14,6 +14,7 @@ import (
 	"log"
 	"math/big"
 	"strings"
+	"time"
 
 	cloudkms "cloud.google.com/go/kms/apiv1"
 	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
@@ -30,6 +31,7 @@ func init() {
 
 type Claims struct {
 	UserID int `json:"userId"`
+	Iat time.Time `json:"iat"`
 }
 
 func Generate(claims *Claims) (string, error) {
