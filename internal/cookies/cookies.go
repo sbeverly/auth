@@ -20,7 +20,7 @@ func GenerateLoginCookie(token string) *http.Cookie {
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
-		MaxAge:   24 * 60 * 60}
+		MaxAge:   1 * 60 * 60}
 }
 
 func GenerateLogoutCookie() *http.Cookie {
