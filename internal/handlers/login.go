@@ -42,7 +42,7 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, &ErrorResponse{invalidCredsMSG})
 	}
 
-	token, err := jwt.Generate(&jwt.Payload{UserID: user.ID})
+	token, err := jwt.Generate(&jwt.Claims{UserID: user.ID})
 
 	if err != nil {
 		c.NoContent(http.StatusInternalServerError)

@@ -25,10 +25,10 @@ func (c *AuthenticatedContext) GetUser() (*db.User, error) {
 		return nil, err
 	}
 
-	payload, _ := jwt.Claims(cookie.Value)
+	claims, _ := jwt.GetClaims(cookie.Value)
 
 	conn := db.Start()
-	user, err := conn.GetUserByID(payload.UserID)
+	user, err := conn.GetUserByID(claims.UserID)
 	conn.End()
 
 	if err != nil {

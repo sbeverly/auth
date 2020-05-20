@@ -28,17 +28,17 @@ func init() {
 	secretKey = getSecretKey(keyName)
 }
 
-type Payload struct {
+type Claims struct {
 	UserID int `json:"userId"`
 }
 
-func Generate(payload *Payload) (string, error) {
-	jsonPayload, _ := json.Marshal(payload)
+func Generate(claims *Claims) (string, error) {
+	jsonClaims, _ := json.Marshal(claims)
 
 	headerB64 := b64Encode(header)
-	payloadB64 := b64Encode(jsonPayload)
+	claimsB64 := b64Encode(jsonClaims)
 
-	message := headerB64 + "." + payloadB64
+	message := headerB64 + "." + claimsB64
 	signature, err := signAsymmetric([]byte(message))
 	sigB64 := b64Encode(signature)
 
@@ -60,19 +60,19 @@ func Verify(token string) error {
 }
 
 // Claims : Extract Claims from token
-func Claims(token string) (*Payload, error) {
-	_, payloadb64, _, err := parseToken(token)
+func GetClaims(token string) (*Claims, error) {
+	_, claimsb64, _, err := parseToken(token)
 
 	if err != nil {
 		return nil, err
 	}
 
-	payloadJSON := b64Decode(string(payloadb64))
+	claimsJSON := b64Decode(string(claimsb64))
 
-	var payload Payload
-	json.Unmarshal(payloadJSON, &payload)
+	var claims Claims
+	json.Unmarshal(claimsJSON, &claims)
 
-	return &payload, nil
+	return &claims, nil
 }
 
 func parseToken(token string) ([]byte, []byte, []byte, error) {
@@ -84,9 +84,9 @@ func parseToken(token string) ([]byte, []byte, []byte, error) {
 
 	signature := b64Decode(parts[2])
 	header := []byte(parts[0])
-	payload := []byte(parts[1])
+	claims := []byte(parts[1])
 
-	return header, payload, signature, nil
+	return header, claims, signature, nil
 }
 
 func b64Encode(data []byte) string {
